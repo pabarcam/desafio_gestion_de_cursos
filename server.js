@@ -1,29 +1,37 @@
-const express = require("express");
-const app = express();
-const bodyParser = require("body-parser");
-const { nuevoCurso } = require('./consultas')
-app.use(bodyParser.urlencoded({ extended: false }));
-app.use(bodyParser.json());
-app.listen(3006);
+const express = require('express')
+const bodyParser = require('body-parser')
+const { saveCurso, getCursos, updateCurso, deleteCurso } = require('./DB/consultas')
+const app = express()
 
-app.post("/curso", async (req,res) => {
-  const nuevo_curso = req.body;
-  cursos.push(nuevo_curso);
-  res.send(cursos);
-})
-app.get("/cursos", (req,res) => {
-  res.send(cursos);
+app.use(bodyParser.urlencoded({ extended: false }))
+app.use(bodyParser.json())
+app.listen(3006, _ => console.log('Server running at: http://localhost:3006'))
+
+app.get('/', (req, res) => {
+  res.sendFile(__dirname + '/index.html')
 })
 
-app.put("/cursos/:curso", async (req,res) => {
-  const { curso } = req.params;
-  const { nombre } = req.body;
-  alumnos = alumnos.map((alum) => (alum.nombre == curso ? { nombre } : alum));
-  res.send(alumnos);
-});
+app.post("/cursos", async(req,res) => {
+  const data = req.body
 
-app.delete("/cursos/:curso", async (req,res) => {
-  const { alumno } = req.params;
-  alumnos = alumnos.filter((alum) => alum.nombre !== alumno);
-  res.send(alumnos);
-});
+  const respuestaDB = await saveCurso(data)
+  res.send(respuestaDB)
+})
+
+app.get('/cursos', async(req, res) => {
+  const cursos = await getCursos()
+  res.send(cursos)
+})
+
+app.put('/cursos/:id', async (req, res) => {
+  const id  = req.params.id
+  const data = req.body
+  const response = await updateCurso({ id, ...data })
+  res.send(response)
+})
+
+app.delete('/cursos/:id', async (req, res) => {
+  const { id } = req.params
+  const response = await deleteCurso(id)
+  res.send(response)
+})

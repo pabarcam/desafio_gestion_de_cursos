@@ -1,9 +1,9 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
+    <title>Mi Gestión de Cursos</title>
     <link
       rel="stylesheet"
       href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.0/css/bootstrap.min.css"
@@ -116,7 +116,7 @@
 </style>
 
 <script>
-  let url = "http://localhost:3000/curso";
+  let url = "http://localhost:3006/cursos";
   let tbody = document.getElementById("cuerpo");
   let nombre = document.getElementById("nombre");
   let nivelTecnico = document.getElementById("nivelTecnico");
@@ -127,7 +127,7 @@
   window.onload = getData();
 
   async function getData() {
-    await axios.get(url + "s").then((data) => {
+    await axios.get(url).then((data) => {
       cursos = data.data;
       console.log(cursos);
       tbody.innerHTML = "";
@@ -140,12 +140,8 @@
           <td>${c.fecha}</td>
           <td>${c.duracion}</td>
           <td>
-            <button class="btn btn-warning" onclick="prepararCurso(${i},'${
-          c.id
-        }')">Editar</button>
-            <button class="btn btn-danger" onclick="eliminarCurso(${i},'${
-          c.id
-        }')">Eliminar</button>
+            <button class="btn btn-warning" onclick="prepararCurso(${i},${c.id})">Editar</button>
+            <button class="btn btn-danger" onclick="eliminarCurso(${c.id})">Eliminar</button>
           </td>
         </tr>
       `;
@@ -158,10 +154,6 @@
   }
 
   function nuevoCurso() {
-    nombre;
-    nivelTecnico;
-    fechaInicio;
-    duracion;
     let data = {
       nombre: nombre.value,
       nivelTecnico: nivelTecnico.value,
@@ -172,9 +164,9 @@
     axios.post(url, data).then(() => getData());
   }
 
-  function eliminarCurso(i, nombre) {
-    axios.delete(url + "/" + nombre).then(() => {
-      alert("Curso " + nombre + " eliminado");
+  function eliminarCurso(id) {
+    axios.delete(url + "/" + id).then(() => {
+      alert("Curso " + id + " eliminado");
       getData();
     });
   }
@@ -185,16 +177,15 @@
     nivelTecnico.value = cursos[i].nivel;
     fechaInicio.value = cursos[i].fecha;
     duracion.value = cursos[i].duracion;
-    document
-      .getElementById("editar")
-      .setAttribute("onclick", `editarCurso('${id}')`);
+
+    document.getElementById("editar").setAttribute("onclick", `editarCurso('${id}')`);
     document.getElementById("agregar").style.display = "none";
     document.getElementById("editar").style.display = "block";
   }
 
   function editarCurso(id) {
     axios
-      .put(url, {
+      .put(url + `/${id}`, {
         nombre: nombre.value,
         nivelTecnico: nivelTecnico.value,
         fechaInicio: fechaInicio.value,
